@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <meta charset="UTF-8">
+    <title>MHS Academic Concern Tracker</title>
+    <style>
+
+        body {
+            font-family: 'Mulish', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            height: 100vh;
+        }
+        .cohort-controls {
+    margin-top: 80px; /* Adjust this value to move it further down if needed */
+    margin-bottom: 20px;
+}
+
+
+.overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .overlay-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    width: 90%; /* Add this line to ensure the width is also 90% */
+}
+
+.student-item {
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+    
+    #close-overlay {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #1E3A8A;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+#cohort-thermometers {
+    padding: 20px;
+}
+        #header {
+            background-color: #1E3A8A;
+            color: #fff;
+            padding: 10px 20px;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            justify-content: space-between;
+            align-items: center;
+            display: flex;
+        }
+        #header img {
+            height: 40px;
+        }
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10000;
+        }
+
+    #strategic-filters {
+        margin-bottom: 20px;
+    }
+
+    .filter-button, .filter-select, .export-button {
+        margin-right: 10px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #1E3A8A;
+        color: white;
+        cursor: pointer;
+    }
+
+    .filter-select {
+        background-color: white;
+        color: #1E3A8A;
+        border: 1px solid #1E3A8A;
+    }
+
+    #strategic-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #strategic-table th, #strategic-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    #strategic-table th {
+        background-color: #1E3A8A;
+        color: white;
+    }
+
+    .group-cell {
+        font-weight: bold;
+    }
+
+    .group-cell.action {
+        background-color: #ff0000;
+        color: white;
+    }
+
+    .group-cell.accelerate {
+        background-color: #ffff00;
+        color: black;
+    }
+
+    .group-cell.ambition {
+        background-color: #00ff00;
+        color: black;
+    }
+
+    .group-cell.aspire {
+        background-color: #800080;
+        color: white;
+    }
+
+    .export-button {
+        margin-top: 20px;
+        background-color: #4CAF50;
+    }
+        .splash-button {
+            margin: 10px;
+            padding: 20px;
+            font-size: 20px;
+            color: #fff;
+            background-color: #1E3A8A;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .splash-button:hover {
+            background-color: #162D66;
+        }
+        .student-select-container {
+            width: 90%;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Adjusted for header height */
+            margin-right: 20px;
+            z-index: 1001;
+        }
+        .student-select {
+            margin-bottom: 20px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #1E3A8A;
+            border-radius: 5px;
+        }
+        #student-info {
+            margin-top: 20px;
+        }
+        #student-photo {
+            width: 100%;
+            max-width: 150px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+
+
+    .thermometer-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        width: 100%;
+    }
+
+    .thermometer-container {
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .thermometer-container h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .thermometer-pair {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .thermometer {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+
+    .thermometer-line {
+        height: 20px;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .thermometer-fill {
+    height: 100%;
+    background-color: #4CAF50; /* Green color */
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+}
+
+    .thermometer-label {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .badge {
+        display: inline-block;
+        color: #fff;
+        border-radius: 3px;
+        padding: 3px 5px;
+        margin: 2px;
+        font-size: 10px;
+    }
+
+    .badge-action {
+        background-color: #ff0000;
+    }
+
+    .badge-accelerate {
+        background-color: #ffff00;
+        color: #000;
+    }
+
+    .badge-ambition {
+        background-color: #00ff00;
+    }
+
+    .badge-aspire {
+        background-color: #800080;
+    }
+
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.header-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #2E4EA2;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.header-button:hover {
+    background-color: #1E3A8A;
+}
+        /* Updated CSS specificity for .hidden class */
+        #splash-screen.hidden {
+            display: none;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <img src="school-logo.png" alt="School Logo">
+        <span>MHS Academic Concern Tracker</span>
+        <div class="header-buttons">
+            <button class="header-button" id="header-cohort-analysis-button">Cohort Analysis</button>
+            <button class="header-button" id="header-student-analysis-button">Student Analysis</button>
+        </div>
+    </div>
+
+    <div id="splash-screen">
+        <button class="splash-button" id="splash-cohort-analysis-button">Cohort Analysis</button>
+        <button class="splash-button" id="splash-student-analysis-button">Student Analysis</button>
+    </div>
+
+<!-- Student Analysis Section -->
+<div class="student-select-container" id="student-select-container">
+    <select class="student-select" id="year-select">
+        <option value="">Select a Year Group</option>
+    </select>
+    <select class="student-select" id="student-select" disabled>
+        <option value="">Select a Student</option>
+    </select>
+    <div id="student-info"></div>
+    <div id="student-thermometers" class="hidden">
+        <div class="thermometer-container">
+            <h3>Individual Student</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="student-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="student-chance-label">Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="student-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="student-success-label">Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+ <!-- Cohort Analysis Thermometers -->
+ <div id="cohort-thermometers" class="hidden">
+    <div class="cohort-controls">
+        <!-- Year Group Selection -->
+        <select class="student-select" id="cohort-year-select">
+            <option value="">Select a Year Group</option>
+        </select>
+    </div>
+    <div class="thermometer-grid">
+        <!-- Overall Cohort Thermometers -->
+        <div class="thermometer-container">
+            <h3>Overall Year Group</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="year-group-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="year-group-chance-label">Year Group Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="year-group-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="year-group-success-label">Year Group Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PP Students -->
+        <div class="thermometer-container">
+            <h3>PP Students</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="pp-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="pp-chance-label">PP Students Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="pp-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="pp-success-label">PP Students Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEND Students -->
+        <div class="thermometer-container">
+            <h3>SEND Students</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="send-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="send-chance-label">SEND Students Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="send-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="send-success-label">SEND Students Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EAL Students -->
+        <div class="thermometer-container">
+            <h3>EAL Students</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="eal-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="eal-chance-label">EAL Students Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="eal-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="eal-success-label">EAL Students Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Male Students -->
+        <div class="thermometer-container">
+            <h3>Male Students</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="male-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="male-chance-label">Male Students Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="male-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="male-success-label">Male Students Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Female Students -->
+        <div class="thermometer-container">
+            <h3>Female Students</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="female-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="female-chance-label">Female Students Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="female-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="female-success-label">Female Students Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PP & SEND Students -->
+        <div class="thermometer-container">
+            <h3>PP & SEND Students</h3>
+            <div class="thermometer-pair">
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="pp-send-chance-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="pp-send-chance-label">PP & SEND Students Chance of Five Subjects at Grade 4+: 0%</div>
+                </div>
+                <div class="thermometer">
+                    <div class="thermometer-line">
+                        <div class="thermometer-fill" id="pp-send-success-fill"></div>
+                    </div>
+                    <div class="thermometer-label" id="pp-send-success-label">PP & SEND Students Success Rating: 0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+    <div class="loading-overlay hidden" id="loading-overlay">Loading data, please wait...</div>
+
+    <script>
+    const WONDE_API_BASE = 'https://api.wonde.com/v1.0/schools/A1417790266';
+    const API_TOKEN = '5608d1fe25a3175355bf4279954080fc791c07a4';
+    let students = [];
+    let wondeStudents = [];
+
+    // Initialize the app when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', async function() {
+        await initializeApp();
+        setupEventListeners();
+    });
+
+    // Function to initialize the app
+    async function initializeApp() {
+        await fetchStudentData();
+        await fetchAllWondeStudents();
+        populateYearSelect();
+    }
+
+    // Function to set up all event listeners
+    function setupEventListeners() {
+        // Initialize buttons
+        const headerCohortButton = document.getElementById('header-cohort-analysis-button');
+        const headerStudentButton = document.getElementById('header-student-analysis-button');
+        const splashCohortButton = document.getElementById('splash-cohort-analysis-button');
+        const splashStudentButton = document.getElementById('splash-student-analysis-button');
+
+        // Add click event listeners for buttons
+        headerCohortButton.addEventListener('click', () => showView('cohort'));
+        headerStudentButton.addEventListener('click', () => showView('student'));
+        splashCohortButton.addEventListener('click', () => showView('cohort'));
+        splashStudentButton.addEventListener('click', () => showView('student'));
+
+        // Add event listener for year select change (student analysis)
+        document.getElementById('year-select').addEventListener('change', function(event) {
+            const selectedYear = event.target.value;
+            if (selectedYear) {
+                populateStudentSelect(selectedYear); // Populate the student select dropdown
+                document.getElementById('student-select').disabled = false; // Enable the student select dropdown
+            } else {
+                document.getElementById('student-select').disabled = true; // Disable if no year is selected
+            }
+        });
+
+        // Add event listener for student select change
+        document.getElementById('student-select').addEventListener('change', async function(event) {
+            const selectedValue = event.target.value;
+            if (selectedValue) {
+                const [forename, surname] = selectedValue.split('|');
+                const studentId = findStudentIdByName(forename, surname);
+                if (studentId) {
+                    const wondeData = await fetchWondeStudentDetails(studentId);
+                    displayStudentInfo(wondeData, forename, surname);
+                } else {
+                    console.error('Student ID not found for:', forename, surname);
+                }
+            }
+        });
+
+        // Close overlay button listener
+        document.getElementById('close-overlay').addEventListener('click', function() {
+            document.getElementById('student-overlay').classList.add('hidden');
+        });
+
+        // Event listener for cohort year select change
+        document.getElementById('cohort-year-select').addEventListener('change', async function() {
+            const selectedYear = parseInt(this.value);
+            if (selectedYear) {
+                document.getElementById('loading-overlay').classList.remove('hidden');
+                await calculateCohortData(selectedYear);
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        });
+    }
+
+    // Function to show the selected view (cohort or student)
+    function showView(view) {
+    console.log('Showing view:', view);
+
+    // Hide all views
+    document.getElementById('splash-screen').classList.add('hidden');
+    document.getElementById('cohort-thermometers').classList.add('hidden');
+    document.getElementById('student-select-container').classList.add('hidden');
+    document.getElementById('student-thermometers').classList.add('hidden');
+
+    // Show the selected view
+    if (view === 'cohort') {
+        console.log('Displaying cohort thermometers'); // Add this line
+        document.getElementById('cohort-thermometers').classList.remove('hidden');
+    } else if (view === 'student') {
+        console.log('Displaying student select container'); // Add this line
+        document.getElementById('student-select-container').classList.remove('hidden');
+        document.getElementById('student-thermometers').classList.add('hidden'); // Hide thermometers initially
+    }
+}
+
+    // Function to fetch student data from students.csv
+    async function fetchStudentData() {
+        try {
+            const response = await fetch('students.csv');
+            if (!response.ok) {
+                throw new Error('Failed to fetch students.csv');
+            }
+            const data = await response.text();
+            const rows = data.split('\n');
+            rows.forEach((row, index) => {
+                if (index === 0) return; // Skip header row
+                const [_, upn, forename, surname, dob, year, gender, english4plus, maths4plus, average4plus] = row.split(',');
+                if (forename && surname && year && average4plus) {
+                    students.push({
+                        name: `${forename.trim()} ${surname.trim()}`,
+                        forename: forename.trim(),
+                        surname: surname.trim(),
+                        year: parseInt(year.trim()),
+                        value: parseFloat(average4plus.trim()),
+                        upn: upn.trim(),
+                        gender: gender.trim(),
+                        successRating: 0,
+                        isPP: false,
+                        isSEND: false,
+                        isEAL: false,
+                        isPPandSEND: false
+                    });
+                }
+            });
+            console.log('Students loaded:', students);
+        } catch (error) {
+            console.error('Error fetching student data:', error);
+        }
+    }
+
+    async function fetchAllWondeStudents() {
+        let nextPage = `${WONDE_API_BASE}/students?include=extended_details`;
+        try {
+            while (nextPage) {
+                const response = await fetch(nextPage, {
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch Wonde students');
+                }
+                const data = await response.json();
+                wondeStudents = wondeStudents.concat(data.data);
+                nextPage = data.meta.pagination.more ? data.meta.pagination.next : null;
+            }
+        } catch (error) {
+            console.error('Error fetching Wonde students:', error);
+        }
+    }
+
+    function findStudentIdByName(forename, surname) {
+        const student = wondeStudents.find(s => 
+            s.forename && s.surname &&
+            s.forename.trim().toLowerCase() === forename.trim().toLowerCase() &&
+            s.surname.trim().toLowerCase() === surname.trim().toLowerCase()
+        );
+        return student?.id || null;
+    }
+
+    async function fetchWondeStudentDetails(studentId) {
+        try {
+            const response = await fetch(`${WONDE_API_BASE}/students/${studentId}?include=attendance_summary,achievements,behaviours,extended_details,photo,registration`, {
+                headers: {
+                    'Authorization': `Bearer ${API_TOKEN}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch Wonde student details');
+            }
+            const data = await response.json();
+            return data.data;
+        } catch (error) {
+            console.error('Error fetching Wonde student details:', error);
+            return null;
+        }
+    }
+
+    function calculateSuccessRating(wondeData, studentName) {
+        let successRating = 100;
+        const today = new Date();
+        const startDate = new Date(today.getFullYear(), 8, 2); // September 2nd
+
+        console.group(`Calculating Success Rating for ${studentName}`);
+        console.log('Initial Success Rating:', successRating);
+
+        // Attendance impact
+        if (wondeData.attendance_summary?.data) {
+            const { present, possible_marks } = wondeData.attendance_summary.data;
+            const attendancePercentage = present / possible_marks;
+            const attendanceImpact = (1 - attendancePercentage) * 400;
+            successRating -= attendanceImpact;
+            console.log(`Attendance: ${(attendancePercentage * 100).toFixed(2)}%`);
+            console.log(`Attendance Impact: -${attendanceImpact.toFixed(2)}`);
+            console.log(`Success Rating after Attendance: ${successRating.toFixed(2)}`);
+        } else {
+            console.log('No attendance data available');
+        }
+
+        // Behavior impact
+        if (wondeData.behaviours?.data) {
+            const behaviourPoints = wondeData.behaviours.data.reduce((sum, b) => sum + b.points, 0);
+            const daysSinceStart = Math.max(1, (today - startDate) / (1000 * 60 * 60 * 24));
+            const behaviourAvg = behaviourPoints / daysSinceStart;
+            const behaviourImpact = Math.max(0, (behaviourAvg - 0.5) * 20);
+            successRating -= behaviourImpact;
+            console.log(`Behavior Points: ${behaviourPoints}`);
+            console.log(`Behavior Average: ${behaviourAvg.toFixed(2)} points per day`);
+            console.log(`Behavior Impact: -${behaviourImpact.toFixed(2)}`);
+            console.log(`Success Rating after Behavior: ${successRating.toFixed(2)}`);
+        } else {
+            console.log('No behavior data available');
+        }
+
+        // Achievement impact
+        if (wondeData.achievements?.data) {
+            const achievementPoints = wondeData.achievements.data.reduce((sum, a) => sum + a.points, 0);
+            const daysSinceStart = Math.max(1, (today - startDate) / (1000 * 60 * 60 * 24));
+            const achievementAvg = achievementPoints / daysSinceStart;
+            const achievementImpact = achievementAvg * 0.8;
+            successRating += achievementImpact;
+            console.log(`Achievement Points: ${achievementPoints}`);
+            console.log(`Achievement Average: ${achievementAvg.toFixed(2)} points per day`);
+            console.log(`Achievement Impact: +${achievementImpact.toFixed(2)}`);
+            console.log(`Success Rating after Achievements: ${successRating.toFixed(2)}`);
+        } else {
+            console.log('No achievement data available');
+        }
+
+        const clampedRating = Math.max(0, Math.min(100, parseFloat(successRating.toFixed(2))));
+        console.log(`Final Success Rating (clamped): ${clampedRating}`);
+        console.log(`Group: ${getGroupForSuccessRating(clampedRating)}`);
+        console.groupEnd();
+
+        return isNaN(clampedRating) ? 0 : clampedRating;
+    }
+
+    function populateYearSelect() {
+    const yearSelects = document.querySelectorAll('#year-select, #cohort-year-select');
+    console.log('Year selects found:', yearSelects); // Add this line
+    yearSelects.forEach(select => {
+        select.innerHTML = '<option value="">Select a Year Group</option>';
+    });
+    const uniqueYears = [...new Set(students.map(student => student.year))].sort();
+    console.log('Unique years:', uniqueYears); // Add this line
+    uniqueYears.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = `Year ${year}`;
+        yearSelects.forEach(select => select.appendChild(option.cloneNode(true)));
+    });
+}
+    // Function to populate the student select dropdown based on selected year
+    function populateStudentSelect(selectedYear) {
+        const studentSelect = document.getElementById('student-select');
+        studentSelect.innerHTML = '<option value="">Select a Student</option>';
+        const filteredStudents = students.filter(s => s.year === parseInt(selectedYear));
+        filteredStudents.forEach(student => {
+            const option = document.createElement('option');
+            option.value = `${student.forename}|${student.surname}`;
+            option.textContent = `${student.forename} ${student.surname}`;
+            studentSelect.appendChild(option);
+        });
+        console.log(`Populated student select with ${filteredStudents.length} students for year ${selectedYear}`);
+    }
+
+    // Function to display student information and update thermometers
+    function displayStudentInfo(studentData, forename, surname) {
+        const studentInfoContainer = document.getElementById('student-info');
+        studentInfoContainer.innerHTML = '';
+        if (studentData) {
+            const photoHtml = studentData.photo?.data?.content
+                ? `<img id="student-photo" src="data:image/jpeg;base64,${studentData.photo.data.content}" alt="Student Photo">`
+                : '';
+
+            const badgesHtml = [];
+            if (studentData.extended_details?.data?.premium_pupil_indicator) {
+                badgesHtml.push('<span class="badge" style="background-color: rgb(133, 114, 208);">PP</span>');
+            }
+            if (['E', 'K', 'M'].includes(studentData.extended_details?.data?.sen_status)) {
+                badgesHtml.push('<span class="badge" style="background-color: rgb(101, 178, 209);">SEND</span>');
+            }
+            if (studentData.extended_details?.data?.english_as_additional_language) {
+                badgesHtml.push('<span class="badge" style="background-color: rgb(112, 112, 112);">EAL</span>');
+            }
+
+            // Calculate success rating
+            const successRating = calculateSuccessRating(studentData, `${forename} ${surname}`);
+
+            // Add new badge based on success rating
+            badgesHtml.push(getBadgeForSuccessRating(successRating));
+
+            studentInfoContainer.innerHTML = `
+                ${photoHtml}
+                <h3>${studentData.forename} ${studentData.surname}</h3>
+                <p>Registration Class: ${studentData.registration?.data?.name || 'N/A'}</p>
+                <div>${badgesHtml.join(' ')}</div>
+            `;
+
+            // Get the student's chance value from the students array
+            const student = students.find(s => 
+                s.forename.trim().toLowerCase() === forename.trim().toLowerCase() && 
+                s.surname.trim().toLowerCase() === surname.trim().toLowerCase()
+            );
+            const chanceValue = student ? student.value : 0;
+
+            // Show thermometers
+            document.getElementById('student-thermometers').classList.remove('hidden'); // Ensure thermometers are visible
+
+            // Update thermometers
+            updateThermometer('student-chance-fill', chanceValue, 'Chance of Five Subjects at Grade 4+: ');
+            updateThermometer('student-success-fill', successRating, 'Success Rating: ');
+        } else {
+            // Hide the student thermometers if no student data
+            document.getElementById('student-thermometers').classList.add('hidden');
+        }
+    }
+
+    // Function to update the thermometer visuals
+    function updateThermometer(thermometerId, value) {
+    const thermometerFill = document.getElementById(thermometerId);
+    const labelId = thermometerId.replace('-fill', '-label');
+    const thermometerLabel = document.getElementById(labelId);
+
+    // Check if the elements exist
+    if (!thermometerFill || !thermometerLabel) {
+        console.error(`Element with ID ${thermometerId} or ${labelId} not found.`);
+        return; // Exit the function if elements are not found
+    }
+
+    // Clamp the value between 0 and 100
+    const clampedValue = Math.min(Math.max(value, 0), 100);
+
+    // Update the fill width
+    thermometerFill.style.width = `${clampedValue}%`; // Update the fill width
+
+    // Update the label text by replacing the percentage at the end
+    thermometerLabel.textContent = thermometerLabel.textContent.replace(/\d+(\.\d+)?%$/, `${clampedValue.toFixed(2)}%`);
+}
+
+    // Function to calculate cohort data and update thermometers
+    async function calculateCohortData(year) {
+        const filteredStudents = students.filter(student => student.year === year);
+        if (filteredStudents.length === 0) return;
+
+        // Fetch and update success ratings and subgroup indicators
+        await Promise.all(filteredStudents.map(async (student) => {
+            const studentId = findStudentIdByName(student.forename, student.surname);
+            if (studentId) {
+                const wondeData = await fetchWondeStudentDetails(studentId);
+                if (wondeData) {
+                    student.successRating = calculateSuccessRating(wondeData, student.name);
+                    if (isNaN(student.successRating)) {
+                        console.error(`NaN success rating for student:`, student);
+                        student.successRating = 0;
+                    }
+                    // Update subgroup indicators
+                    const isPP = wondeData.extended_details?.data?.premium_pupil_indicator || false;
+                    const isSEND = ['E', 'K', 'M'].includes(wondeData.extended_details?.data?.sen_status);
+                    const isEAL = wondeData.extended_details?.data?.english_as_additional_language || false;
+                    student.isPP = isPP;
+                    student.isSEND = isSEND;
+                    student.isEAL = isEAL;
+                    student.isPPandSEND = isPP && isSEND;
+                    student.gender = wondeData.gender;
+                }
+            }
+        }));
+
+        // Calculate averages for overall cohort and subgroups
+        const overall = calculateAverage(filteredStudents);
+        console.log('Overall:', overall);
+        updateThermometer('year-group-chance-fill', overall.averageChance, );
+        updateThermometer('year-group-success-fill', overall.averageSuccess,);
+
+        // Subgroups
+        const subgroups = [
+            { label: 'PP', filter: s => s.isPP, chanceFillId: 'pp-chance-fill', successFillId: 'pp-success-fill' },
+            { label: 'SEND', filter: s => s.isSEND, chanceFillId: 'send-chance-fill', successFillId: 'send-success-fill' },
+            { label: 'EAL', filter: s => s.isEAL, chanceFillId: 'eal-chance-fill', successFillId: 'eal-success-fill' },
+            { label: 'Male', filter: s => s.gender.toLowerCase() === 'male', chanceFillId: 'male-chance-fill', successFillId: 'male-success-fill' },
+            { label: 'Female', filter: s => s.gender.toLowerCase() === 'female', chanceFillId: 'female-chance-fill', successFillId: 'female-success-fill' },
+            { label: 'PP & SEND', filter: s => s.isPPandSEND, chanceFillId: 'pp-send-chance-fill', successFillId: 'pp-send-success-fill' }
+        ];
+
+        subgroups.forEach(group => {
+            const groupStudents = filteredStudents.filter(group.filter);
+            const averages = calculateAverage(groupStudents);
+
+            updateThermometer(group.chanceFillId, averages.averageChance);
+            updateThermometer(group.successFillId, averages.averageSuccess);
+        });
+
+        // After updating thermometers, set up listeners
+        setupThermometerContainerListeners();
+    }
+
+    // Function to calculate average chance and success rating
+    function calculateAverage(studentsArray) {
+        const totalChance = studentsArray.reduce((sum, s) => sum + s.value, 0);
+        const totalSuccess = studentsArray.reduce((sum, s) => sum + (isNaN(s.successRating) ? 0 : s.successRating), 0);
+        return {
+            averageChance: totalChance / studentsArray.length || 0,
+            averageSuccess: totalSuccess / studentsArray.length || 0
+        };
+    }
+
+    // Function to set up thermometer container listeners
+    function setupThermometerContainerListeners() {
+        const containers = document.querySelectorAll('.thermometer-container');
+        containers.forEach(container => {
+            container.addEventListener('click', () => {
+                const groupTitle = container.querySelector('h3').textContent;
+                showStudentOverlay(groupTitle);
+            });
+        });
+    }
+
+    // Function to show the student overlay with strategic overview
+    function showStudentOverlay(groupTitle) {
+        const overlay = document.getElementById('student-overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlayStudents = document.getElementById('overlay-students');
+
+        overlayTitle.textContent = groupTitle;
+        overlayStudents.innerHTML = '';
+
+        const selectedYear = parseInt(document.getElementById('cohort-year-select').value);
+        const filteredStudents = students.filter(student => student.year === selectedYear);
+
+        let groupStudents;
+        switch (groupTitle) {
+            case 'Overall Year Group':
+                groupStudents = filteredStudents;
+                break;
+            case 'PP Students':
+                groupStudents = filteredStudents.filter(s => s.isPP);
+                break;
+            case 'SEND Students':
+                groupStudents = filteredStudents.filter(s => s.isSEND);
+                break;
+            case 'EAL Students':
+                groupStudents = filteredStudents.filter(s => s.isEAL);
+                break;
+            case 'Male Students':
+                groupStudents = filteredStudents.filter(s => s.gender.toLowerCase() === 'male');
+                break;
+            case 'Female Students':
+                groupStudents = filteredStudents.filter(s => s.gender.toLowerCase() === 'female');
+                break;
+            case 'PP & SEND Students':
+                groupStudents = filteredStudents.filter(s => s.isPP && s.isSEND);
+                break;
+            default:
+                console.error('Unknown group:', groupTitle);
+                return; // Exit the function if an unknown group is encountered
+        }
+
+        showStrategicOverview(groupStudents);
+        overlay.classList.remove('hidden');
+    }
+
+    // Function to show the strategic overview table
+    function showStrategicOverview(students) {
+        const overlayStudents = document.getElementById('overlay-students');
+        overlayStudents.innerHTML = `
+            <div id="strategic-filters">
+                <button id="filter-pp" class="filter-button">Filter PP</button>
+                <button id="filter-sen" class="filter-button">Filter SEN</button>
+                <button id="filter-eal" class="filter-button">Filter EAL</button>
+                <select id="filter-group" class="filter-select">
+                    <option value="">All Groups</option>
+                    <option value="Aspire">Aspire</option>
+                    <option value="Ambition">Ambition</option>
+                    <option value="Accelerate">Accelerate</option>
+                    <option value="Action">Action</option>
+                </select>
+            </div>
+            <table id="strategic-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>PP</th>
+                        <th>SEN</th>
+                        <th>EAL</th>
+                        <th>Grades Chance</th>
+                        <th>Success Rating</th>
+                        <th>Group</th>
+                    </tr>
+                </thead>
+                <tbody>
+            ${students.map(student => `
+                <tr>
+                    <td>${student.forename} ${student.surname}</td>
+                    <td>${student.isPP ? 'Yes' : 'No'}</td>
+                    <td>${student.isSEND ? 'Yes' : 'No'}</td>
+                    <td>${student.isEAL ? 'Yes' : 'No'}</td>
+                    <td>${student.value.toFixed(2)}%</td>
+                    <td>${student.successRating.toFixed(2)}%</td>
+                    <td class="group-cell ${getGroupForSuccessRating(student.successRating).toLowerCase()}">
+                        ${getGroupForSuccessRating(student.successRating)}
+                    </td>
+                </tr>
+            `).join('')}
+                </tbody>
+            </table>
+            <button id="export-excel" class="export-button">Export to Excel</button>
+        `;
+
+        setupStrategicFilters(students);
+        setupExcelExport();
+    }
+
+    // Function to get the group name based on success rating
+    function getGroupForSuccessRating(successRating) {
+        if (successRating <= 25) return 'Action';
+        if (successRating <= 50) return 'Accelerate';
+        if (successRating <= 75) return 'Ambition';
+        return 'Aspire';
+    }
+
+    // Function to set up strategic filters
+    function setupStrategicFilters(students) {
+        const table = document.getElementById('strategic-table');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        document.getElementById('filter-pp').addEventListener('click', () => filterRows('PP'));
+        document.getElementById('filter-sen').addEventListener('click', () => filterRows('SEN'));
+        document.getElementById('filter-eal').addEventListener('click', () => filterRows('EAL'));
+        document.getElementById('filter-group').addEventListener('change', (e) => filterRows('Group', e.target.value));
+
+        function filterRows(column, value) {
+            console.log(`Filtering by ${column}, value: ${value}`);
+            let visibleCount = 0;
+
+            for (let row of rows) {
+                const cell = row.cells[getColumnIndex(column)];
+                let shouldDisplay = false;
+
+                if (column === 'Group') {
+                    shouldDisplay = value === '' || cell.textContent.trim() === value;
+                } else {
+                    shouldDisplay = value ? (cell.textContent === 'Yes') : true;
+                }
+
+                row.style.display = shouldDisplay ? '' : 'none';
+                if (shouldDisplay) visibleCount++;
+            }
+
+            console.log(`Visible rows after filtering: ${visibleCount}`);
+        }
+
+        function getColumnIndex(column) {
+            switch (column) {
+                case 'PP': return 1;
+                case 'SEN': return 2;
+                case 'EAL': return 3;
+                case 'Group': return 6;
+                default: return 0;
+            }
+        }
+    }
+
+    // Function to set up Excel export functionality
+    function setupExcelExport() {
+        document.getElementById('export-excel').addEventListener('click', () => {
+            const table = document.getElementById('strategic-table');
+            const ws = XLSX.utils.table_to_sheet(table);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Strategic Overview');
+
+            // Add styles for color coding
+            const groups = ['Action', 'Accelerate', 'Ambition', 'Aspire'];
+            const colors = ['FFFF0000', 'FFFFFF00', 'FF00FF00', 'FF800080'];
+            for (let i = 1; i <= ws['!ref'].split(':')[1].replace(/\D/g, ''); i++) {
+                const group = ws[`G${i}`]?.v;
+                if (group && groups.includes(group)) {
+                    const colorIndex = groups.indexOf(group);
+                    ws[`G${i}`].s = { 
+                        fill: { fgColor: { rgb: colors[colorIndex] } },
+                        font: { color: { rgb: colorIndex === 1 || colorIndex === 2 ? '000000' : 'FFFFFF' } }
+                    };
+                }
+            }
+
+            XLSX.writeFile(wb, 'strategic_overview.xlsx');
+        });
+    }
+
+    // Function to get badge HTML based on success rating
+    function getBadgeForSuccessRating(successRating) {
+        if (successRating <= 25) {
+            return '<span class="badge badge-action">Action</span>';
+        } else if (successRating <= 50) {
+            return '<span class="badge badge-accelerate">Accelerate</span>';
+        } else if (successRating <= 75) {
+            return '<span class="badge badge-ambition">Ambition</span>';
+        } else {
+            return '<span class="badge badge-aspire">Aspire</span>';
+        }
+    }
+</script>
+
+
+<div id="student-overlay" class="overlay hidden">
+    <div class="overlay-content">
+        <h2 id="overlay-title"></h2>
+        <div id="overlay-students"></div>
+        <button id="close-overlay">Close</button>
+    </div>
+</div>
+</body>
+</html>
